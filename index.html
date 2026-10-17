@@ -1,293 +1,163 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Mallet Inventory</title> 
-    <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-    <style>
-      :root {
-        --bg: #fafaf8;
-        --fg: #1d1d1b;
-        --card: #fff;
-        --line: #ddd9d0;
-        --accent: #8a4b1f;
-        --muted: #6b6860;
-      }
-      @media (prefers-color-scheme: dark) {
-        :root {
-          --bg: #1a1917;
-          --fg: #efece4;
-          --card: #242321;
-          --line: #3a3834;
-          --accent: #d9955a;
-          --muted: #9a968c;
-        }
-      }
-      * {
-        box-sizing: border-box;
-      }
-      body {
-        margin: 0;
-        font:
-          16px/1.4 system-ui,
-          sans-serif;
-        background: var(--bg);
-        color: var(--fg);
-      }
-      header {
-        display: flex;
-        gap: 6px;
-        padding: 10px;
-        border-bottom: 1px solid var(--line);
-        position: sticky;
-        top: 0;
-        background: var(--bg);
-        z-index: 2;
-      }
-      header button {
-        flex: 1;
-      }
-      main {
-        max-width: 640px;
-        margin: 0 auto;
-        padding: 12px;
-      }
-      button {
-        padding: 10px 14px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: var(--card);
-        color: var(--fg);
-        font: inherit;
-        cursor: pointer;
-      }
-      button.primary,
-      header button.on {
-        background: var(--accent);
-        color: #fff;
-        border-color: var(--accent);
-      }
-      button.danger {
-        color: #b3261e;
-      }
-      input {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: var(--card);
-        color: var(--fg);
-        font: inherit;
-        margin: 4px 0 10px;
-      }
-      label {
-        font-size: 13px;
-        color: var(--muted);
-      }
-      .row {
-        display: flex;
-        gap: 8px;
-      }
-      .row > * {
-        flex: 1;
-      }
-      .card {
-        background: var(--card);
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        padding: 14px;
-        margin-top: 12px;
-      }
-      #reader {
-        width: 100%;
-        border-radius: 12px;
-        overflow: hidden;
-      }
-      .item {
-        display: flex;
-        justify-content: space-between;
-        padding: 10px 0;
-        border-bottom: 1px solid var(--line);
-        cursor: pointer;
-      }
-      .item small {
-        color: var(--muted);
-        display: block;
-      }
-      .qty {
-        font-size: 22px;
-        font-weight: 600;
-        align-self: center;
-      }
-      #msg {
-        color: var(--accent);
-        min-height: 22px;
-        margin-top: 8px;
-      }
-      .hide {
-        display: none;
-      }
-    </style>
-  </head>
-  <body>
-    <header>
-      <button data-v="scan" class="on">Scan</button>
-      <button data-v="list">Inventory</button>
-      <button data-v="set">Settings</button>
-    </header>
-    <main>
-      <div id="msg"></div>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mallet Inventory</title>
+<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  :root { --bg:#fafaf8; --fg:#1d1d1b; --card:#fff; --line:#ddd9d0; --accent:#8a4b1f; --muted:#6b6860; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#1a1917; --fg:#efece4; --card:#242321; --line:#3a3834; --accent:#d9955a; --muted:#9a968c; } }
+  * { box-sizing:border-box; }
+  body { margin:0; font:16px/1.4 system-ui,sans-serif; background:var(--bg); color:var(--fg); }
+  header { display:flex; gap:6px; padding:10px; border-bottom:1px solid var(--line); position:sticky; top:0; background:var(--bg); z-index:2; }
+  header button { flex:1; padding:10px 6px; }
+  main { max-width:640px; margin:0 auto; padding:12px; }
+  button { padding:10px 14px; border:1px solid var(--line); border-radius:8px; background:var(--card); color:var(--fg); font:inherit; cursor:pointer; }
+  button:disabled { opacity:.4; }
+  button.primary, header button.on { background:var(--accent); color:#fff; border-color:var(--accent); }
+  button.danger { color:#b3261e; }
+  input { width:100%; padding:10px; border:1px solid var(--line); border-radius:8px; background:var(--card); color:var(--fg); font:inherit; margin:4px 0 10px; }
+  label { font-size:13px; color:var(--muted); }
+  .row { display:flex; gap:8px; } .row > * { flex:1; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; margin-top:12px; }
+  #reader { width:100%; border-radius:12px; overflow:hidden; }
+  .item { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--line); }
+  .item.click { cursor:pointer; }
+  .item small { color:var(--muted); display:block; }
+  .qty { font-size:22px; font-weight:600; align-self:center; }
+  #msg { position:fixed; left:12px; right:12px; bottom:12px; background:var(--accent); color:#fff; padding:10px; border-radius:8px; text-align:center; z-index:9; }
+  #msg:empty { display:none; }
+  .hide { display:none; }
+</style>
+</head>
+<body>
+<div id="msg"></div>
 
-      <section id="scan">
-        <div id="reader"></div>
-        <div class="row" style="margin-top: 10px">
-          <button id="camBtn" class="primary">Start camera</button>
-        </div>
-        <div class="row" style="margin-top: 10px">
-          <input
-            id="manual"
-            placeholder="Or type a barcode"
-            inputmode="numeric"
-          />
-          <button id="lookup" style="flex: 0 0 90px; margin: 4px 0 10px">
-            Look up
-          </button>
-        </div>
-        <div id="itemCard" class="card hide"></div>
-      </section>
+<main id="gate">
+  <h2>Mallet Inventory</h2>
+  <label>Apps Script web app URL</label>
+  <input id="url" placeholder="https://script.google.com/macros/s/…/exec">
+  <label>Google OAuth client ID</label>
+  <input id="clientId" placeholder="123…apps.googleusercontent.com">
+  <button class="primary" id="saveCfg">Save &amp; show sign-in</button>
+  <div id="gbtn" style="margin-top:16px"></div>
+</main>
 
-      <section id="list" class="hide">
-        <input id="search" placeholder="Search name, type, location…" />
-        <div id="rows"></div>
-      </section>
+<div id="app" class="hide">
+  <header>
+    <button data-v="scan" class="on">Scan</button>
+    <button data-v="list">Inventory</button>
+    <button data-v="log">Activity</button>
+    <button id="out">Sign out</button>
+  </header>
+  <main>
+    <section id="scan">
+      <div id="reader"></div>
+      <div class="row" style="margin-top:10px"><button id="camBtn" class="primary">Start camera</button></div>
+      <div class="row" style="margin-top:10px">
+        <input id="manual" placeholder="Or type a barcode" inputmode="numeric">
+        <button id="lookup" style="flex:0 0 90px;margin:4px 0 10px">Look up</button>
+      </div>
+      <div id="itemCard" class="card hide"></div>
+    </section>
+    <section id="list" class="hide">
+      <input id="search" placeholder="Search name, type, location…">
+      <div id="rows"></div>
+    </section>
+    <section id="log" class="hide"><div id="logRows"></div></section>
+  </main>
+</div>
 
-      <section id="set" class="hide">
-        <label>Apps Script web app URL</label>
-        <input
-          id="url"
-          placeholder="https://script.google.com/macros/s/…/exec"
-        />
-        <label>Token</label>
-        <input id="token" type="password" />
-        <button class="primary" id="saveCfg">Save settings</button>
-      </section>
-    </main>
+<script>
+const $ = s => document.querySelector(s);
+let cfg = {}, items = [], scanner = null, scanning = false, me = null, idToken = '';
+try { cfg = JSON.parse(localStorage.getItem('cfg') || '{}'); } catch (e) {}
+try { idToken = sessionStorage.getItem('idt') || ''; } catch (e) {}
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const say = t => { $('#msg').textContent = t; setTimeout(() => { if ($('#msg').textContent === t) $('#msg').textContent = ''; }, 4000); };
 
-    <script>
-      const $ = (s) => document.querySelector(s);
-      let cfg = {},
-        items = [],
-        scanner = null,
-        scanning = false;
-      try {
-        cfg = JSON.parse(localStorage.getItem("cfg") || "{}");
-      } catch (e) {}
-      const esc = (s) =>
-        String(s ?? "").replace(
-          /[&<>"]/g,
-          (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
-        );
-      const say = (t) => {
-        $("#msg").textContent = t;
-        if (t)
-          setTimeout(() => {
-            if ($("#msg").textContent === t) $("#msg").textContent = "";
-          }, 4000);
-      };
+// ---- API + auth
+async function api(action, data = {}) {
+  if (!cfg.url) throw new Error('Add your web app URL first');
+  const r = await fetch(cfg.url, { method: 'POST', headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ idToken, action, ...data }) });
+  const j = await r.json();
+  if (j.error) { if (/^Sign in/.test(j.error)) signOut(true); throw new Error(j.error); }
+  return j;
+}
+function showGate() { $('#gate').classList.remove('hide'); $('#app').classList.add('hide'); stopCam(); }
+function signOut(silent) {
+  idToken = ''; me = null;
+  try { sessionStorage.removeItem('idt'); } catch (e) {}
+  if (!silent && window.google && google.accounts) google.accounts.id.disableAutoSelect();
+  showGate();
+}
+async function startApp() {
+  try {
+    me = await api('me');
+    $('#gate').classList.add('hide'); $('#app').classList.remove('hide');
+    say('Signed in as ' + me.email + (me.role === 'viewer' ? ' (read-only)' : ''));
+  } catch (e) { say(e.message); showGate(); }
+}
+function initGsi() {
+  if (!cfg.clientId || !window.google || !google.accounts) return;
+  google.accounts.id.initialize({ client_id: cfg.clientId, auto_select: true, callback: r => {
+    idToken = r.credential;
+    try { sessionStorage.setItem('idt', idToken); } catch (e) {}
+    startApp();
+  }});
+  $('#gbtn').innerHTML = '';
+  google.accounts.id.renderButton($('#gbtn'), { theme: 'outline', size: 'large' });
+}
+$('#url').value = cfg.url || ''; $('#clientId').value = cfg.clientId || '';
+$('#saveCfg').onclick = () => {
+  cfg = { url: $('#url').value.trim(), clientId: $('#clientId').value.trim() };
+  try { localStorage.setItem('cfg', JSON.stringify(cfg)); } catch (e) {}
+  initGsi();
+};
+window.addEventListener('load', () => { initGsi(); if (idToken && cfg.url) startApp(); });
+$('#out').onclick = () => signOut(false);
 
-      async function api(action, data = {}) {
-        if (!cfg.url) throw new Error("Add your web app URL in Settings");
-        const r = await fetch(cfg.url, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({ token: cfg.token, action, ...data }),
-        });
-        const j = await r.json();
-        if (j.error) throw new Error(j.error);
-        return j;
-      }
-      async function refresh() {
-        items = (await api("list")).items;
-        renderList();
-      }
+// ---- navigation
+document.querySelectorAll('[data-v]').forEach(b => b.onclick = () => {
+  document.querySelectorAll('[data-v]').forEach(x => x.classList.toggle('on', x === b));
+  ['scan', 'list', 'log'].forEach(v => $('#' + v).classList.toggle('hide', v !== b.dataset.v));
+  if (b.dataset.v !== 'scan') stopCam();
+  if (b.dataset.v === 'list') refresh().catch(e => say(e.message));
+  if (b.dataset.v === 'log') loadLog().catch(e => say(e.message));
+});
+async function refresh() { items = (await api('list')).items; renderList(); }
 
-      // ---- navigation
-      document.querySelectorAll("header button").forEach(
-        (b) =>
-          (b.onclick = () => {
-            document
-              .querySelectorAll("header button")
-              .forEach((x) => x.classList.toggle("on", x === b));
-            ["scan", "list", "set"].forEach((v) =>
-              $("#" + v).classList.toggle("hide", v !== b.dataset.v),
-            );
-            if (b.dataset.v !== "scan") stopCam();
-            if (b.dataset.v === "list") refresh().catch((e) => say(e.message));
-          }),
-      );
+// ---- scanning
+async function stopCam() {
+  if (scanner && scanning) { try { await scanner.stop(); } catch (e) {} }
+  scanning = false; $('#camBtn').textContent = 'Start camera';
+}
+$('#camBtn').onclick = async () => {
+  if (scanning) return stopCam();
+  scanner = scanner || new Html5Qrcode('reader');
+  try {
+    await scanner.start({ facingMode: 'environment' }, { fps: 10, qrbox: { width: 260, height: 140 } },
+      code => { stopCam(); onCode(code); });
+    scanning = true; $('#camBtn').textContent = 'Stop camera';
+  } catch (e) { say('Camera unavailable: ' + e); }
+};
+$('#lookup').onclick = () => { const c = $('#manual').value.trim(); if (c) onCode(c); };
+async function onCode(code) {
+  try {
+    await refresh();
+    showCard(items.find(i => i.barcode === String(code)) ||
+      { barcode: String(code), name: '', type: '', material: '', qty: 1, location: '', notes: '', isNew: true });
+  } catch (e) { say(e.message); }
+}
 
-      // ---- scanning
-      async function stopCam() {
-        if (scanner && scanning) {
-          try {
-            await scanner.stop();
-          } catch (e) {}
-        }
-        scanning = false;
-        $("#camBtn").textContent = "Start camera";
-      }
-      $("#camBtn").onclick = async () => {
-        if (scanning) return stopCam();
-        scanner = scanner || new Html5Qrcode("reader");
-        try {
-          await scanner.start(
-            { facingMode: "environment" },
-            { fps: 10, qrbox: { width: 260, height: 140 } },
-            (code) => {
-              stopCam();
-              onCode(code);
-            },
-          );
-          scanning = true;
-          $("#camBtn").textContent = "Stop camera";
-        } catch (e) {
-          say("Camera unavailable: " + e);
-        }
-      };
-      $("#lookup").onclick = () => {
-        const c = $("#manual").value.trim();
-        if (c) onCode(c);
-      };
-
-      async function onCode(code) {
-        try {
-          if (!items.length) await refresh();
-          else await refresh();
-          const found = items.find((i) => i.barcode === String(code));
-          showCard(
-            found || {
-              barcode: String(code),
-              name: "",
-              type: "",
-              material: "",
-              qty: 1,
-              location: "",
-              notes: "",
-              isNew: true,
-            },
-          );
-        } catch (e) {
-          say(e.message);
-        }
-      }
-
-      // ---- item card
-      function showCard(it) {
-        const c = $("#itemCard");
-        c.classList.remove("hide");
-        c.innerHTML = `
-    <strong>${it.isNew ? "New item" : "Item"}</strong> <small style="color:var(--muted)">${esc(it.barcode)}</small>
+// ---- item card
+function showCard(it) {
+  const c = $('#itemCard'); c.classList.remove('hide');
+  c.innerHTML = `
+    <strong>${it.isNew ? 'New item' : 'Item'}</strong> <small style="color:var(--muted)">${esc(it.barcode)}</small>
     <label>Name</label><input id="f_name" value="${esc(it.name)}">
     <div class="row"><div><label>Type</label><input id="f_type" placeholder="marimba, vibes…" value="${esc(it.type)}"></div>
     <div><label>Material</label><input id="f_material" placeholder="yarn, rubber…" value="${esc(it.material)}"></div></div>
@@ -295,99 +165,45 @@
     <div><label>Qty</label><input id="f_qty" type="number" min="0" value="${it.qty}"></div></div>
     <label>Notes</label><input id="f_notes" value="${esc(it.notes)}">
     <div class="row">
-      ${it.isNew ? "" : '<button id="minus">−1</button><button id="plus">+1</button>'}
+      ${it.isNew ? '' : '<button id="minus">−1</button><button id="plus">+1</button>'}
       <button class="primary" id="save">Save</button>
-      ${it.isNew ? "" : '<button class="danger" id="del">Delete</button>'}
+      ${it.isNew ? '' : '<button class="danger" id="del">Delete</button>'}
     </div>`;
-        const val = (k) => $("#f_" + k).value;
-        $("#save").onclick = async () => {
-          try {
-            await api("save", {
-              item: {
-                barcode: it.barcode,
-                name: val("name"),
-                type: val("type"),
-                material: val("material"),
-                location: val("location"),
-                qty: val("qty"),
-                notes: val("notes"),
-              },
-            });
-            say("Saved");
-            c.classList.add("hide");
-            $("#manual").value = "";
-            refresh();
-          } catch (e) {
-            say(e.message);
-          }
-        };
-        if (!it.isNew) {
-          const adj = async (d) => {
-            try {
-              const r = await api("adjust", { barcode: it.barcode, delta: d });
-              $("#f_qty").value = r.qty;
-              say("Qty: " + r.qty);
-            } catch (e) {
-              say(e.message);
-            }
-          };
-          $("#minus").onclick = () => adj(-1);
-          $("#plus").onclick = () => adj(1);
-          $("#del").onclick = async () => {
-            if (confirm("Delete this item?")) {
-              try {
-                await api("delete", { barcode: it.barcode });
-                c.classList.add("hide");
-                say("Deleted");
-                refresh();
-              } catch (e) {
-                say(e.message);
-              }
-            }
-          };
-        }
-      }
+  const val = k => $('#f_' + k).value;
+  $('#save').onclick = async () => {
+    try {
+      await api('save', { item: { barcode: it.barcode, name: val('name'), type: val('type'), material: val('material'),
+        location: val('location'), qty: val('qty'), notes: val('notes') } });
+      say('Saved'); c.classList.add('hide'); $('#manual').value = ''; refresh();
+    } catch (e) { say(e.message); }
+  };
+  if (!it.isNew) {
+    const adj = async d => { try { const r = await api('adjust', { barcode: it.barcode, delta: d }); $('#f_qty').value = r.qty; say('Qty: ' + r.qty); } catch (e) { say(e.message); } };
+    $('#minus').onclick = () => adj(-1); $('#plus').onclick = () => adj(1);
+    $('#del').onclick = async () => { if (confirm('Delete this item?')) { try { await api('delete', { barcode: it.barcode }); c.classList.add('hide'); say('Deleted'); refresh(); } catch (e) { say(e.message); } } };
+  }
+  if (me && me.role === 'viewer') c.querySelectorAll('button').forEach(b => b.disabled = true);
+}
 
-      // ---- list
-      function renderList() {
-        const q = $("#search").value.toLowerCase();
-        const rows = items.filter((i) =>
-          [i.name, i.type, i.material, i.location, i.barcode]
-            .join(" ")
-            .toLowerCase()
-            .includes(q),
-        );
-        $("#rows").innerHTML =
-          rows
-            .map(
-              (i) => `<div class="item" data-b="${esc(i.barcode)}">
-    <div>${esc(i.name || "(unnamed)")}<small>${esc([i.type, i.material, i.location].filter(Boolean).join(" · "))}</small></div>
-    <div class="qty">${i.qty}</div></div>`,
-            )
-            .join("") || '<p style="color:var(--muted)">No items yet.</p>';
-        $("#rows")
-          .querySelectorAll(".item")
-          .forEach(
-            (el) =>
-              (el.onclick = () => {
-                document.querySelector("[data-v=scan]").click();
-                showCard(items.find((i) => i.barcode === el.dataset.b));
-              }),
-          );
-      }
-      $("#search").oninput = renderList;
-
-      // ---- settings
-      $("#url").value = cfg.url || "";
-      $("#token").value = cfg.token || "";
-      $("#saveCfg").onclick = () => {
-        cfg = { url: $("#url").value.trim(), token: $("#token").value };
-        try {
-          localStorage.setItem("cfg", JSON.stringify(cfg));
-        } catch (e) {}
-        say("Settings saved");
-      };
-      if (!cfg.url) document.querySelector("[data-v=set]").click();
-    </script>
-  </body>
+// ---- list + activity
+function renderList() {
+  const q = $('#search').value.toLowerCase();
+  const rows = items.filter(i => [i.name, i.type, i.material, i.location, i.barcode].join(' ').toLowerCase().includes(q));
+  $('#rows').innerHTML = rows.map(i => `<div class="item click" data-b="${esc(i.barcode)}">
+    <div>${esc(i.name || '(unnamed)')}<small>${esc([i.type, i.material, i.location].filter(Boolean).join(' · '))}</small></div>
+    <div class="qty">${i.qty}</div></div>`).join('') || '<p style="color:var(--muted)">No items yet.</p>';
+  $('#rows').querySelectorAll('.item').forEach(el => el.onclick = () => {
+    document.querySelector('[data-v=scan]').click();
+    showCard(items.find(i => i.barcode === el.dataset.b));
+  });
+}
+$('#search').oninput = renderList;
+async function loadLog() {
+  const { log } = await api('log');
+  $('#logRows').innerHTML = log.map(l => `<div class="item"><div>${esc(l.action)} · ${esc(l.name || l.barcode)}
+    <small>${esc(l.user)} · ${new Date(l.time).toLocaleString()}${l.details ? ' · ' + esc(l.details) : ''}</small></div></div>`).join('')
+    || '<p style="color:var(--muted)">No activity yet.</p>';
+}
+</script>
+</body>
 </html>
